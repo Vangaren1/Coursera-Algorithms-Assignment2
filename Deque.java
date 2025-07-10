@@ -10,17 +10,12 @@ import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
-    private class QNode {
-        Item val;
-        QNode next;
-        QNode prev;
-    }
-
     private class DequeIterator implements Iterator<Item> {
-        private QNode curr = first;
 
+        int pos = first;
+        int count = 0;
         public boolean hasNext() {
-            return curr != null;
+            return count < queueSize;
         }
 
         public void remove() {
@@ -28,23 +23,35 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
         public Item next() {
-            if (curr == null) throw new NoSuchElementException();
-            Item i = curr.val;
-            curr = curr.next;
-            return i;
+            Item tmp = itemArray[pos];
+            pos = (pos + capacity + 1) % capacity;
+            count++;
+            return tmp;
         }
     }
 
     private int queueSize;
-    private QNode first, last;
+    private int capacity;
+    private int first, last;
+    private Item[] itemArray;
 
     // construct an empty deque
     public Deque() {
+        capacity = 1;
+        itemArray = (Item[]) new Object[capacity];
         queueSize = 0;
-        first = null;
-        last = null;
+        this.first = 0;
+        this.last = 0;
     }
 
+    private void resize(int capacity) {
+        Item[] newArray = (Item[]) new Object[capacity];
+        for ( int index = 0; index < queueSize; index++ ) {
+            newArray[index] = itemArray[index];
+        }
+        itemArray = newArray;
+        this.capacity = capacity;
+    }
 
     // is the deque empty?
     public boolean isEmpty() {
@@ -58,17 +65,13 @@ public class Deque<Item> implements Iterable<Item> {
 
     // add the item to the front
     public void addFirst(Item item) {
-        if (item == null) throw new IllegalArgumentException();
+        if ( queueSize == capacity ) resize( capacity * 2);
 
-        QNode newNode = new QNode();
-        newNode.val = item;
-        if (isEmpty()) {
-            first = newNode;
-            last = newNode;
-        }
-        else {
-            newNode.next = first;
-            first = newNode;
+        if(queueSize == 0){
+            itemArray[0] = item;
+        } else{
+            first = ( first + capacity - 1) % capacity;
+            itemArray[first] = item;
         }
         queueSize++;
     }
@@ -76,35 +79,35 @@ public class Deque<Item> implements Iterable<Item> {
 
     // add the item to the back
     public void addLast(Item item) {
-        if (item == null) throw new IllegalArgumentException();
+        if ( queueSize == capacity ) resize( capacity * 2);
 
-        QNode newNode = new QNode();
-        newNode.val = item;
-        if (isEmpty()) {
-            last = newNode;
-            first = newNode;
-        }
-        else {
-            newNode.next = last;
-            last = newNode;
+        if(queueSize == 0){
+            itemArray[0] = item;
+        } else {
+            last = ( last + capacity + 1) % capacity;
+            itemArray[last] = item;
         }
         queueSize++;
     }
 
     // remove and return the item from the front
     public Item removeFirst() {
-        if (queueSize == 0) throw new NoSuchElementException();
-        Item tmp = first.val;
-        first = first.next;
+        if ( queueSize == 0) throw new NoSuchElementException();
+
+        Item tmp = itemArray[first];
+        itemArray[first] = null;
+        first = (first + capacity + 1) % capacity;
         queueSize--;
         return tmp;
     }
 
     // remove and return the item from the back
     public Item removeLast() {
-        if (queueSize == 0) throw new NoSuchElementException();
-        Item tmp = last.val;
-        last = last.prev;
+        if ( queueSize == 0) throw new NoSuchElementException();
+
+        Item tmp = itemArray[last];
+        itemArray[last] = null;
+        last = (last + capacity - 1) % capacity;
         queueSize--;
         return tmp;
     }
