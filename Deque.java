@@ -23,9 +23,12 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
         public Item next() {
+            if (!hasNext()) throw new NoSuchElementException();
+
             Item tmp = itemArray[pos];
             pos = (pos + capacity + 1) % capacity;
             count++;
+
             return tmp;
         }
     }
@@ -44,13 +47,19 @@ public class Deque<Item> implements Iterable<Item> {
         this.last = 0;
     }
 
-    private void resize(int capacity) {
-        Item[] newArray = (Item[]) new Object[capacity];
-        for ( int index = 0; index < queueSize; index++ ) {
-            newArray[index] = itemArray[index];
+    private void resize(int cap) {
+        if (cap < queueSize) throw new IndexOutOfBoundsException();
+
+        int pos = (first + capacity) % capacity;
+        Item[] newArray = (Item[]) new Object[cap];
+        for (int index = 0; index < queueSize; index++) {
+            newArray[index] = itemArray[pos];
+            pos = (pos + capacity + 1) % capacity;
         }
         itemArray = newArray;
-        this.capacity = capacity;
+        this.capacity = cap;
+        first = 0;
+        last = queueSize-1;
     }
 
     // is the deque empty?
@@ -65,12 +74,15 @@ public class Deque<Item> implements Iterable<Item> {
 
     // add the item to the front
     public void addFirst(Item item) {
-        if ( queueSize == capacity ) resize( capacity * 2);
 
-        if(queueSize == 0){
+        if (item == null) throw new NoSuchElementException();
+
+        if (queueSize == capacity) resize(capacity * 2);
+
+        if (queueSize == 0) {
             itemArray[0] = item;
-        } else{
-            first = ( first + capacity - 1) % capacity;
+        } else {
+            first = (first + capacity - 1) % capacity;
             itemArray[first] = item;
         }
         queueSize++;
@@ -79,12 +91,15 @@ public class Deque<Item> implements Iterable<Item> {
 
     // add the item to the back
     public void addLast(Item item) {
-        if ( queueSize == capacity ) resize( capacity * 2);
 
-        if(queueSize == 0){
+        if (item == null) throw new NoSuchElementException();
+
+        if (queueSize == capacity) resize(capacity * 2);
+
+        if (queueSize == 0) {
             itemArray[0] = item;
         } else {
-            last = ( last + capacity + 1) % capacity;
+            last = (last + capacity + 1) % capacity;
             itemArray[last] = item;
         }
         queueSize++;
@@ -92,23 +107,29 @@ public class Deque<Item> implements Iterable<Item> {
 
     // remove and return the item from the front
     public Item removeFirst() {
-        if ( queueSize == 0) throw new NoSuchElementException();
+        if (queueSize == 0) throw new NoSuchElementException();
 
         Item tmp = itemArray[first];
         itemArray[first] = null;
         first = (first + capacity + 1) % capacity;
         queueSize--;
+
+        if (queueSize < (capacity / 4)) resize(capacity/2);
+
         return tmp;
     }
 
     // remove and return the item from the back
     public Item removeLast() {
-        if ( queueSize == 0) throw new NoSuchElementException();
+        if (queueSize == 0) throw new NoSuchElementException();
 
         Item tmp = itemArray[last];
         itemArray[last] = null;
         last = (last + capacity - 1) % capacity;
         queueSize--;
+
+        if (queueSize < (capacity / 4)) resize(capacity/2);
+
         return tmp;
     }
 
@@ -118,16 +139,16 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     public static void main(String[] args) {
-        Deque<String> d = new Deque<>();
-        System.out.println(d.isEmpty());
-        d.addFirst("first");
-        System.out.println(d.size());
-        d.addLast("last");
-        d.addFirst("tmp");
-        d.removeFirst();
-        d.removeLast();
-        for (String s : d) {
-            System.out.println(s);
-        }
+        Deque<Integer> deque = new Deque<>();
+        System.out.println(deque.isEmpty());
+        deque.addFirst(2);
+        deque.addFirst(3);
+        System.out.println(deque.removeFirst());
+        System.out.println(deque.removeFirst());
+        System.out.println(deque.isEmpty());
+        System.out.println(deque.isEmpty());
+        System.out.println(deque.isEmpty());
+        deque.addFirst(9);
+        System.out.println(deque.removeFirst());
     }
 }
