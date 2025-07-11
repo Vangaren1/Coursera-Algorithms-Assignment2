@@ -50,16 +50,22 @@ public class Deque<Item> implements Iterable<Item> {
     private void resize(int cap) {
         if (cap < queueSize) throw new IndexOutOfBoundsException();
 
-        int pos = (first + capacity) % capacity;
         Item[] newArray = (Item[]) new Object[cap];
         for (int index = 0; index < queueSize; index++) {
-            newArray[index] = itemArray[pos];
-            pos = (pos + capacity + 1) % capacity;
+            newArray[index] = itemArray[(first + capacity + index) % capacity];
         }
         itemArray = newArray;
         this.capacity = cap;
         first = 0;
         last = queueSize-1;
+    }
+
+    private void reset() {
+        int cap = 1;
+        itemArray = (Item[]) new Object[cap];
+        first = 0;
+        last = 0;
+        this.capacity = cap;
     }
 
     // is the deque empty?
@@ -75,7 +81,7 @@ public class Deque<Item> implements Iterable<Item> {
     // add the item to the front
     public void addFirst(Item item) {
 
-        if (item == null) throw new NoSuchElementException();
+        if (item == null) throw new IllegalArgumentException();
 
         if (queueSize == capacity) resize(capacity * 2);
 
@@ -92,7 +98,7 @@ public class Deque<Item> implements Iterable<Item> {
     // add the item to the back
     public void addLast(Item item) {
 
-        if (item == null) throw new NoSuchElementException();
+        if (item == null) throw new IllegalArgumentException();
 
         if (queueSize == capacity) resize(capacity * 2);
 
@@ -114,7 +120,11 @@ public class Deque<Item> implements Iterable<Item> {
         first = (first + capacity + 1) % capacity;
         queueSize--;
 
-        if (queueSize < (capacity / 4)) resize(capacity/2);
+        if (queueSize == 0) {
+            reset();
+        } else {
+            if (queueSize <= (capacity / 4)) resize(capacity/2);
+        }
 
         return tmp;
     }
@@ -128,7 +138,11 @@ public class Deque<Item> implements Iterable<Item> {
         last = (last + capacity - 1) % capacity;
         queueSize--;
 
-        if (queueSize < (capacity / 4)) resize(capacity/2);
+        if (queueSize == 0) {
+            reset();
+        } else {
+            if (queueSize <= (capacity / 4)) resize(capacity/2);
+        }
 
         return tmp;
     }

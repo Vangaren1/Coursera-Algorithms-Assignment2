@@ -19,6 +19,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     private void resize(int cap) {
+        if (cap < 1) cap = 1;
         if (cap < queueSize) throw new IndexOutOfBoundsException();
 
         Item[] newArray = (Item[]) new Object[cap];
@@ -41,7 +42,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // add the item
     public void enqueue(Item item) {
-        if (item == null) throw new NoSuchElementException();
+        if (item == null) throw new IllegalArgumentException();
 
         if (queueSize == capacity) resize(capacity * 2);
 
@@ -72,11 +73,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         // remove the end
         Item tmp = itemArray[last];
         itemArray[last] = null;
-        last--;
+        if (last > 0) last--;
         queueSize--;
 
         // resize if size < capacity / 4
-        if (queueSize < (capacity / 4)) resize(capacity/2);
+        if (queueSize <= (capacity / 4)) resize(capacity/2);
 
         return tmp;
     }
@@ -113,9 +114,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         public Item next() {
             if (pos == queueSize) throw new NoSuchElementException();
-            temp = itemArray[pos];
+            temp = tmp[pos];
             pos++;
-            return tmp;
+            return temp;
         }
     }
 
@@ -125,66 +126,18 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     public static void main(String[] args) {
-        RandomizedQueue<String> q = new RandomizedQueue<String>();
-        System.out.println(q.isEmpty());
-        q.enqueue("Hello");
-        System.out.println(q.size());
-        q.enqueue("apple");
-        q.enqueue("river");
-        q.enqueue("forest");
-        q.enqueue("lamp");
-        q.enqueue("garden");
-        q.enqueue("cloud");
-        q.enqueue("stone");
-        q.enqueue("music");
-        q.enqueue("ocean");
-        q.enqueue("mountain");
-        q.enqueue("glass");
-        q.enqueue("mirror");
-        q.enqueue("book");
-        q.enqueue("pencil");
-        q.enqueue("planet");
-        q.enqueue("rocket");
-        q.enqueue("sunset");
-        q.enqueue("island");
-        q.enqueue("storm");
-        q.enqueue("flame");
-        q.enqueue("snow");
-        q.enqueue("shadow");
-        q.enqueue("bridge");
-        q.enqueue("train");
-        q.enqueue("castle");
-        q.enqueue("ghost");
-        q.enqueue("breeze");
-        q.enqueue("candle");
-        q.enqueue("dream");
-        q.enqueue("feather");
-        q.enqueue("flute");
-        q.enqueue("valley");
-        q.enqueue("sky");
-        q.enqueue("whale");
-        q.enqueue("forest");
-        q.enqueue("pebble");
-        q.enqueue("harbor");
-        q.enqueue("torch");
-        q.enqueue("iceberg");
-        q.enqueue("comet");
-        q.enqueue("echo");
-        q.enqueue("trail");
-        q.enqueue("cliff");
-        q.enqueue("fog");
-        q.enqueue("maze");
-        q.enqueue("seed");
-        q.enqueue("drift");
-        q.enqueue("glow");
-        q.enqueue("crystal");
-        q.enqueue("orbit");
-        System.out.println(q.sample());
-        System.out.println(q.sample());
-        System.out.println(q.sample());
-        for (String tmp : q) {
-            System.out.println(tmp);
+        RandomizedQueue<String> queue = new RandomizedQueue<>();
+        queue.enqueue("A");
+        queue.enqueue("B");
+        queue.enqueue("C");
+        queue.enqueue("D");
+        Iterator<String> test1 = queue.iterator();
+        while (test1.hasNext()) {
+            System.out.println(test1.next());
         }
-
+        Iterator<String> test2 = queue.iterator();
+        while (test2.hasNext()) {
+            System.out.println(test2.next());
+        }
     }
 }
